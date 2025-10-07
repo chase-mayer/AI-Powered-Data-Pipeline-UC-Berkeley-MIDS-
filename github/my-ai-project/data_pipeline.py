@@ -142,6 +142,23 @@ def plot_correlation_heatmap(cor: pd.DataFrame, outdir: Path) -> Path:
     logging.info(f"Saved plot -> {outpath}")
     return outpath
 
+def plot_regression_fit(df: pd.DataFrame, outdir: Path) -> Path:
+    outdir.mkdir(parents=True, exist_ok=True)
+    outpath = outdir / "regression_fit.png"
+    X = df[["temperature"]].values
+    y = df["vibration"].values
+    model = LinearRegression().fit(X, y)
+    y_pred = model.predict(X)
+
+    plt.figure(figsize=(6,4))
+    plt.scatter(X, y, alpha=0.5, label="Actual")
+    plt.plot(X, y_pred, label="Fitted", linewidth=2)
+    plt.title("Temperature vs Vibration – Regression Fit")
+    plt.xlabel("Temperature"); plt.ylabel("Vibration"); plt.legend(); plt.tight_layout()
+    plt.savefig(outpath, dpi=150); plt.close()
+    logging.info(f"Saved plot -> {outpath}")
+    return outpath
+
 
 # ----------------------------
 # Orchestration
@@ -176,6 +193,7 @@ def main():
     # Step 4: Plots
     plot_timeseries(clean_df, args.plots)
     plot_correlation_heatmap(cor, args.plots)
+    plot_regression_fit(clean_df, args.plots)
 
     # Step 5: Console summary (copy/paste to README if you want)
     print("\n=== ANALYSIS SUMMARY ===")
@@ -184,6 +202,7 @@ def main():
     print(f"Coefs: {metrics['coefs']}")
     print(f"Intercept: {metrics['intercept']:.4f}")
     print("Correlation matrix:\n", cor)
+    
 
 
 if __name__ == "__main__":
